@@ -110,14 +110,15 @@ class TuringMachine:
             c_next, action, q_next = self.rules[q][c]
             self.tape[self.position] = c_next
 
-            steps.append({
-                "curr_state": q,
-                "next_state": q_next,
-                "curr_character": c,
-                "next_character": c_next,
-                "action": action,
-                "tact": tacts
-            })
+            if mode == BY_STEP_MODE:
+                steps.append({
+                    "curr_state": q,
+                    "next_state": q_next,
+                    "curr_character": c,
+                    "next_character": c_next,
+                    "action": action,
+                    "tact": tacts
+                })
 
             if action == MOVE_RIGHT:
                 self.position += 1
