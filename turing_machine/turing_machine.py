@@ -94,13 +94,13 @@ class TuringMachine:
 
     def get_tape_word(self):
         left, right = self.__get_borders()
-        
+
         if left is None:
             return ""
 
         return "".join(self.tape[left:right + 1])
 
-    def run(self, mode:str = "normal", max_tacts:int = 9999, initial_state:str = "q0") -> dict:
+    def run(self, mode: str = "normal", max_tacts: int = 9999, initial_state: str = "q0") -> dict:
         q = initial_state
         tacts = 0
 
