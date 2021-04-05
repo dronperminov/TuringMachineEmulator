@@ -1,57 +1,5 @@
-LAMBDA = 'λ'
-STOP_STATE = '!'
-
-MOVE_LEFT = 'L'
-MOVE_NONE = 'N'
-MOVE_RIGHT = 'R'
-
-SUCCESSFUL_STATUS = "successful"
-MAX_ITERATIONS_REACHED_STATUS = "max iterations reached"
-
-NORMAL_MODE = "normal"
-BY_STEP_MODE = "by step"
-
-
-class Tape:
-    """Infinite tape of characters."""
-    def __init__(self, input: str = ''):
-        from collections import defaultdict
-        self._chars = defaultdict(lambda: LAMBDA)
-        self._chars.update(enumerate(input))
-        self._left = 0
-        self._right = len(input)
-
-    def __getitem__(self, key):
-        return self._chars[key]
-
-    def __setitem__(self, key, value):
-        if value != LAMBDA:
-            if key >= self._right:
-                self._right = key + 1
-            elif key < self._left and value != LAMBDA:
-                self._left = key
-            self._chars[key] = value
-        elif key in self._chars:
-            self._chars.pop(key)
-            if key == self._right - 1:
-                self._right = max(self._chars.keys())
-            elif key == self._left and value != LAMBDA:
-                self._left = min(self._chars.keys())
-
-    def __str__(self):
-        return ''.join(self._chars[i] for i in range(self._left, self._right))
-
-    def string_with_position(self, head: int):
-        """String representation with head position marked in []"""
-        if head < self._left:
-            return f'[{LAMBDA}]' + LAMBDA * (self._left - head - 1) + str(self)
-        if head >= self._right:
-            return str(self) + LAMBDA * (head - self._right) + f'[{LAMBDA}]'
-        return ''.join(
-            self._chars[i] for i in range(self._left, head)
-        ) + f'[{self._chars[head]}]' + ''.join(
-            self._chars[i] for i in range(head + 1, self._right)
-        )
+from turing_machine.constants import *
+from turing_machine.tape import Tape
 
 
 class TuringMachine:
@@ -70,12 +18,14 @@ class TuringMachine:
     def __cell_to_str(self, q: str, c: str, prettify: bool) -> str:
         c_next, move, q_next = self.rules[q][c]
         if prettify and c_next == c:
-            if q_next == q: return move
-            if move == MOVE_NONE: return q_next
+            if q_next == q:
+                return move
+            if move == MOVE_NONE:
+                return q_next
         return c_next + " " + q_next + " " + move
 
     def __print_state(self, q: str, prettify: bool):
-        print("| %8s |" % q, " | ".join(["%8s" % self.__cell_to_str(q, c, prettify) for c in self.alphabet]), "|")
+        print("| %8s |" % q, " | ".join("%8s" % self.__cell_to_str(q, c, prettify) for c in self.alphabet), "|")
 
     def print_rules(self, prettify_rules: bool = True):
         print("Alphabet:", self.alphabet)
@@ -93,8 +43,8 @@ class TuringMachine:
 
     def print_tape(self, with_position=True):
         """Print current state of the tape."""
-        string = self.tape.string_with_position(self.position) if with_position else str(self.tape)
-        print(string or "Tape is empty")
+        tape_str = self.tape.string_with_position(self.position) if with_position else str(self.tape)
+        print(tape_str or "Tape is empty")
 
     def reset(self, tape: str, position: int = 0):
         """Set up tape and head position"""
