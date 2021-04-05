@@ -103,8 +103,6 @@ class TuringMachine:
     def run(self, mode: str = "normal", max_tacts: int = 9999, initial_state: str = "q0") -> dict:
         q = initial_state
         tacts = 0
-
-        result = dict()
         steps = []
 
         while q != STOP_STATE and tacts < max_tacts:
@@ -112,14 +110,14 @@ class TuringMachine:
             c_next, action, q_next = self.rules[q][c]
             self.tape[self.position] = c_next
 
-            step = dict()
-            step["curr_state"] = q
-            step["next_state"] = q_next
-            step["curr_character"] = c
-            step["next_character"] = c_next
-            step["action"] = action
-            step["tact"] = tacts
-            steps.append(step)
+            steps.append({
+                "curr_state": q,
+                "next_state": q_next,
+                "curr_character": c,
+                "next_character": c_next,
+                "action": action,
+                "tact": tacts
+            })
 
             if action == MOVE_RIGHT:
                 self.position += 1
@@ -129,10 +127,12 @@ class TuringMachine:
             tacts += 1
             q = q_next
 
-        result["status"] = SUCCESSFUL_STATUS if tacts < max_tacts else MAX_ITERATIONS_REACHED_STATUS
-        result["result"] = self.get_tape_word()
-        result["iterations"] = tacts
-        result["head_position"] = self.position
+        result = {
+            "status": SUCCESSFUL_STATUS if tacts < max_tacts else MAX_ITERATIONS_REACHED_STATUS,
+            "result": self.get_tape_word(),
+            "iterations": tacts,
+            "head_position": self.position
+        }
 
         if mode == BY_STEP_MODE:
             result["steps"] = steps
