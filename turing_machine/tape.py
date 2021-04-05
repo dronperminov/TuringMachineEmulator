@@ -15,15 +15,12 @@ class Tape:
 
     def __setitem__(self, key, value):
         if value != LAMBDA:
-            self._right = max(self._right, key + 1)
-            self._left = min(self._left, key)
             self._chars[key] = value
         elif key in self._chars:
             self._chars.pop(key)
-            if key == self._right - 1:
-                self._right = max(self._chars.keys())
-            elif key == self._left and value != LAMBDA:
-                self._left = min(self._chars.keys())
+
+        self._right = max(self._chars.keys()) + 1
+        self._left = min(self._chars.keys())
 
     def __str__(self):
         return ''.join(self._chars[i] for i in range(self._left, self._right))
