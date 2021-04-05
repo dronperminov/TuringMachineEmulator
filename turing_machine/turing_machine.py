@@ -12,12 +12,53 @@ NORMAL_MODE = "normal"
 BY_STEP_MODE = "by step"
 
 
+class Tape:
+    """Infinite tape of characters."""
+    def __init__(self, input: str = ''):
+        from collections import defaultdict
+        self._chars = defaultdict(lambda: LAMBDA)
+        self._chars.update(enumerate(input))
+        self._left = 0
+        self._right = len(input)
+
+    def __getitem__(self, key):
+        return self._chars[key]
+
+    def __setitem__(self, key, value):
+        if value != LAMBDA:
+            if key >= self._right:
+                self._right = key + 1
+            elif key < self._left and value != LAMBDA:
+                self._left = key
+            self._chars[key] = value
+        elif key in self._chars:
+            self._chars.pop(key)
+            if key == self._right - 1:
+                self._right = max(self._chars.keys())
+            elif key == self._left and value != LAMBDA:
+                self._left = min(self._chars.keys())
+
+    def __str__(self):
+        return ''.join(self._chars[i] for i in range(self._left, self._right))
+
+    def string_with_position(self, head: int):
+        if head < self._left:
+            return f'[{LAMBDA}]' + LAMBDA * (self._left - head - 1) + str(self)
+        if head >= self._right:
+            return str(self) + LAMBDA * (head - self._right) + f'[{LAMBDA}]'
+        return ''.join(
+            self._chars[i] for i in range(self._left, head)
+        ) + f'[{self._chars[head]}]' + ''.join(
+            self._chars[i] for i in range(head + 1, self._right)
+        )
+
+
 class TuringMachine:
-    def __init__(self, config: dict, tape_size=10000):
+    def __init__(self, config: dict):
         self.alphabet = config["alphabet"] + LAMBDA
         self.rules = config["rules"]
-        self.tape = [LAMBDA for _ in range(tape_size)]  # TODO: replace with normal tape class
-        self.position = tape_size // 2
+        self.tape = Tape()
+        self.position = 0
 
     def __print_line(self):
         print("+----------" * (len(self.alphabet) + 1) + '+')
@@ -37,19 +78,6 @@ class TuringMachine:
 
         return c_next + " " + q_next + " " + action
 
-    def __get_borders(self):
-        left = None
-        right = len(self.tape) - 1
-
-        for i, c in enumerate(self.tape):
-            if c != LAMBDA:
-                if left is None:
-                    left = i
-
-                right = i
-
-        return left, right
-
     def __print_state(self, q: str, prettify: bool):
         print("| %8s |" % q, " | ".join(["%8s" % self.__cell_to_str(q, c, prettify) for c in self.alphabet]), "|")
 
@@ -68,37 +96,15 @@ class TuringMachine:
         print()
 
     def print_tape(self, with_position=True):
-        left, right = self.__get_borders()
+        string = self.tape.string_with_position(self.position) if with_position else str(self.tape)
+        print(string or "Tape is empty")
 
-        print("Tape: ", end='')
-
-        if left is None:
-            print("empty")
-            return
-
-        result = "".join([self.tape[i] for i in range(left, right + 1)])
-
-        if with_position:
-            left = min(left, self.position)
-            right = max(right, self.position)
-
-            print("".join(["[" + self.tape[i] + "]" if i == self.position else self.tape[i] for i in range(left, right + 1)]))
-        else:
-            print(result)
-
-    def init_tape(self, word: str):
-        self.position = len(self.tape) // 2
-
-        for i, c in enumerate(word):
-            self.tape[self.position + i] = c
+    def init_tape(self, word: str, position: int = 0):
+        self.position = position
+        self.tape = Tape(word)
 
     def get_tape_word(self):
-        left, right = self.__get_borders()
-
-        if left is None:
-            return ""
-
-        return "".join(self.tape[left:right + 1])
+        return str(self.tape)
 
     def run(self, mode: str = "normal", max_tacts: int = 9999, initial_state: str = "q0") -> dict:
         q = initial_state
