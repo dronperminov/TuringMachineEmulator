@@ -35,8 +35,7 @@ class Tape:
         if head >= self._right:
             return str(self) + LAMBDA * (head - self._right) + f'[{LAMBDA}]'
 
-        return ''.join(
-            self._chars[i] for i in range(self._left, head)
-        ) + f'[{self._chars[head]}]' + ''.join(
-            self._chars[i] for i in range(head + 1, self._right)
-        )
+        left = ''.join(self._chars[i] for i in range(self._left, head))
+        curr = f'[{self._chars[head]}]'
+        right = ''.join(self._chars[i] for i in range(head + 1, self._right))
+        return left + curr + right

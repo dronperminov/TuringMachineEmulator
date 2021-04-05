@@ -10,10 +10,10 @@ class TuringMachine:
         self.position = position
 
     def __print_line(self):
-        print('+----------' * len(self.alphabet) + '+----------+')
+        print('+--------' * len(self.alphabet) + '+--------+')
 
     def __print_header(self):
-        print("|          |", " | ".join("%8s" % c for c in self.alphabet), "|")
+        print("|        |", " | ".join("%6s" % c for c in self.alphabet), "|")
 
     def __cell_to_str(self, q: str, c: str, prettify: bool) -> str:
         c_next, move, q_next = self.rules[q][c]
@@ -25,7 +25,11 @@ class TuringMachine:
         return c_next + " " + q_next + " " + move
 
     def __print_state(self, q: str, prettify: bool):
-        print("| %8s |" % q, " | ".join("%8s" % self.__cell_to_str(q, c, prettify) for c in self.alphabet), "|")
+        cells = " | ".join(
+            "%6s" % self.__cell_to_str(q, c, prettify)
+            for c in self.alphabet
+        )
+        print("| %6s |" % q, cells, "|")
 
     def print_rules(self, prettify_rules: bool = True):
         print("Alphabet:", self.alphabet)
