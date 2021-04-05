@@ -1,9 +1,11 @@
-from turing_machine.constants import *
+from typing import Dict
+from turing_machine.constants import LAMBDA, STOP_STATE, MOVE_LEFT, MOVE_NONE, MOVE_RIGHT
+from turing_machine.constants import NORMAL_MODE, BY_STEP_MODE, SUCCESSFUL_STATUS, MAX_ITERATIONS_REACHED_STATUS
 from turing_machine.tape import Tape
 
 
 class TuringMachine:
-    def __init__(self, *, alphabet: str, rules: dict[str, dict], tape: str = '', position: int = 0):
+    def __init__(self, *, alphabet: str, rules: Dict[str, dict], tape: str = '', position: int = 0):
         self.alphabet = alphabet + LAMBDA
         self.rules = rules
         self.tape = Tape(tape)
@@ -17,18 +19,18 @@ class TuringMachine:
 
     def __cell_to_str(self, q: str, c: str, prettify: bool) -> str:
         c_next, move, q_next = self.rules[q][c]
+
         if prettify and c_next == c:
             if q_next == q:
                 return move
+
             if move == MOVE_NONE:
                 return q_next
+
         return c_next + " " + q_next + " " + move
 
     def __print_state(self, q: str, prettify: bool):
-        cells = " | ".join(
-            "%6s" % self.__cell_to_str(q, c, prettify)
-            for c in self.alphabet
-        )
+        cells = " | ".join("%6s" % self.__cell_to_str(q, c, prettify) for c in self.alphabet)
         print("| %6s |" % q, cells, "|")
 
     def print_rules(self, prettify_rules: bool = True):
@@ -50,7 +52,7 @@ class TuringMachine:
         tape_str = self.tape.string_with_position(self.position) if with_position else str(self.tape)
         print(tape_str or "Tape is empty")
 
-    def reset(self, tape: str, position: int = 0):
+    def set_tape_string(self, tape: str, position: int = 0):
         """Set up tape and head position"""
         self.position = position
         self.tape = Tape(tape)

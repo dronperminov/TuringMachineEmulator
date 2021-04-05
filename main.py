@@ -1,4 +1,4 @@
-from turing_machine.turing_machine import TuringMachine, NORMAL_MODE
+from turing_machine.turing_machine import TuringMachine
 
 
 def main():
