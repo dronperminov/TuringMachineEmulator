@@ -1,11 +1,12 @@
 from typing import Dict
 from turing_machine.constants import LAMBDA, STOP_STATE, MOVE_LEFT, MOVE_NONE, MOVE_RIGHT
-from turing_machine.constants import NORMAL_MODE, BY_STEP_MODE, SUCCESSFUL_STATUS, MAX_ITERATIONS_REACHED_STATUS
+from turing_machine.constants import NORMAL_MODE, BY_STEP_MODE
+from turing_machine.constants import SUCCESSFUL_STATUS, MAX_ITERATIONS_REACHED_STATUS, MAX_ITERATIONS
 from turing_machine.tape import Tape
 
 
 class TuringMachine:
-    def __init__(self, *, alphabet: str, rules: Dict[str, dict], tape: str = '', position: int = 0):
+    def __init__(self, *, alphabet: str, rules: Dict[str, Dict[str, list]], tape: str = '', position: int = 0):
         self.alphabet = alphabet + LAMBDA
         self.rules = rules
         self.tape = Tape(tape)
@@ -61,7 +62,7 @@ class TuringMachine:
         """Return the current state of the tape as a string"""
         return str(self.tape)
 
-    def run(self, mode: str = NORMAL_MODE, max_tacts: int = 9999, initial_state: str = "q0") -> dict:
+    def run(self, mode: str = NORMAL_MODE, max_tacts: int = MAX_ITERATIONS, initial_state: str = "q0") -> dict:
         q = initial_state
         tacts = 0
         steps = []
