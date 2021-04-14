@@ -7,6 +7,7 @@ MOVE_RIGHT = 'R'
 
 SUCCESSFUL_STATUS = "successful"
 MAX_ITERATIONS_REACHED_STATUS = "max iterations reached"
+MAX_ITERATIONS = 9999
 
 NORMAL_MODE = "normal"
 BY_STEP_MODE = "by step"
