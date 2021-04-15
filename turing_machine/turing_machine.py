@@ -6,6 +6,14 @@ from turing_machine.tape import Tape
 
 
 class TuringMachine:
+    """
+    Turing machine class.
+
+    :param alphabet: the alphabet of this machine
+    :type alphabet: string of characters
+    :param rules: maps state, character to [symbol, move, next state]
+    :type rules: {str: {str: [str]}}
+    """
     def __init__(self, *, alphabet: str, rules: Dict[str, Dict[str, list]], tape: str = '', position: int = 0):
         self.alphabet = alphabet + LAMBDA
         self.rules = rules

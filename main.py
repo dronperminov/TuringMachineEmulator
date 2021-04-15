@@ -1,7 +1,14 @@
+"""
+Example using :class:`turing_machine.TuringMachine`.
+"""
+
 from turing_machine.turing_machine import TuringMachine
 
 
 def main():
+    """
+    main function does main things.
+    """
     config = {
         'alphabet': 'ab',
         'tape': 'aabaab',
