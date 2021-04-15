@@ -3,7 +3,10 @@ from turing_machine.constants import LAMBDA
 
 
 class Tape:
-    """Infinite tape of characters."""
+    """Infinite tape of characters.
+
+    :param str: string written on the tape
+    """
     def __init__(self, input: str = ''):
         self._chars = defaultdict(lambda: LAMBDA)
         self._chars.update(enumerate(input))
@@ -26,7 +29,11 @@ class Tape:
         return ''.join(self._chars[i] for i in range(self._left, self._right))
 
     def string_with_position(self, head: int):
-        """String representation with head position marked in []"""
+        """String representation with head position marked in []
+
+        :param head: index where to mark head
+        :type head: int
+        """
         if head < self._left:
             return f'[{LAMBDA}]' + LAMBDA * (self._left - head - 1) + str(self)
         if head >= self._right:

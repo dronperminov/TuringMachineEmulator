@@ -1,5 +1,5 @@
 """
-Example using :class:`turing_machine.TuringMachine`.
+Example using :class:`turing_machine.turing_machine.TuringMachine`.
 """
 
 from turing_machine.turing_machine import TuringMachine
