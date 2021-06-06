@@ -20,6 +20,14 @@ class TuringMachine:
         self.tape = Tape(tape)
         self.position = position
 
+        assert len(rules) > 0
+        if 'q0' in rules:
+            self.state = 'q0'
+        else:
+            for k in rules:
+                self.state = k
+                break
+
     def __print_line(self):
         """prints horisonatal line of the rules tabel"""
         print('+--------' * len(self.alphabet) + '+--------+')
@@ -88,7 +96,7 @@ class TuringMachine:
         """Returns the current state of the tape as a string"""
         return str(self.tape)
 
-    def run(self, mode: str = NORMAL_MODE, max_tacts: int = MAX_ITERATIONS, initial_state: str = "q0") -> dict:
+    def run(self, mode: str = NORMAL_MODE, max_tacts: int = MAX_ITERATIONS) -> dict:
         """Emulate the Turing machine.
 
         :param mode: whether to include result of every step in return
@@ -99,18 +107,17 @@ class TuringMachine:
             * head_position: where the head is on the tape
             * steps: list of intemideate information for every step, included only for "by step" mode
         """
-        q = initial_state
         tacts = 0
         steps = []
 
-        while q != STOP_STATE and tacts < max_tacts:
+        while self.state != STOP_STATE and tacts < max_tacts:
             c = self.tape[self.position]
-            c_next, move, q_next = self.rules[q][c]
+            c_next, move, q_next = self.rules[self.state][c]
             self.tape[self.position] = c_next
 
             if mode == BY_STEP_MODE:
                 steps.append({
-                    "curr_state": q,
+                    "curr_state": self.state,
                     "next_state": q_next,
                     "curr_character": c,
                     "next_character": c_next,
@@ -124,7 +131,7 @@ class TuringMachine:
                 self.position -= 1
 
             tacts += 1
-            q = q_next
+            self.state = q_next
 
         result = {
             "status": SUCCESSFUL_STATUS if tacts < max_tacts else MAX_ITERATIONS_REACHED_STATUS,
