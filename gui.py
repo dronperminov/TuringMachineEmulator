@@ -3,6 +3,7 @@ Graphical user interface for Turing machine, using Tkinter.
 """
 import tkinter as tk
 from tkinter import ttk
+from tkinter import font
 from turing_machine.turing_machine import TuringMachine
 from turing_machine.constants import LAMBDA
 
@@ -40,6 +41,7 @@ class View(ttk.Frame):
 
     def create_widgets(self):
         """Create all the widgets."""
+        self.bold = font.Font(weight='bold')
 
         self.tape_frame = self.new_widget(ttk.Frame, 0, 0)
         self.tape = []
@@ -49,10 +51,14 @@ class View(ttk.Frame):
             vc = self.register(to_reg)
             a = self.new_widget(
                 ttk.Entry, 0, i, parent=self.tape_frame,
+                width=1, justify='center',
                 textvariable=self.controller.tape[i],
                 validate='focusout', validatecommand=vc
             )
             self.tape.append(a)
+        i = self.model.position - self.controller.tape_start
+        if 0 <= i < self.tape_size:
+            self.tape[i]['font'] = self.bold
         self.set_weight(self.tape_frame)
 
         machine_settings = self.new_widget(ttk.Frame, 1, 0)
@@ -96,7 +102,9 @@ class View(ttk.Frame):
             vc = self.register(to_reg)
             self.new_widget(
                 ttk.Entry, i + 1, 1, parent=self.rules,
-                textvariable=self.controller.rules[s], validate='focusout',
+                width=5, justify='center',
+                textvariable=self.controller.rules[s],
+                validate='focusout',
                 validatecommand=vc
             )
             for j, c in enumerate(self.model.alphabet):
@@ -108,6 +116,7 @@ class View(ttk.Frame):
                     textvariable=self.controller.rules[s, c], validate='focusout',
                     validatecommand=vc
                 )
+
         lll = len(self.model.rules)
         def to_reg(s=''):
             return self.controller.state_check(s)
@@ -118,7 +127,6 @@ class View(ttk.Frame):
             validatecommand=vc
         )
         self.set_weight(self.rules)
-
 
 class Controller:
     def __init__(self, view: View, machine: TuringMachine):
