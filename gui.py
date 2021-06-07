@@ -4,7 +4,7 @@ Graphical user interface for Turing machine, using Tkinter.
 import tkinter as tk
 from tkinter import ttk
 from turing_machine.turing_machine import TuringMachine
-
+from turing_machine.constants import LAMBDA
 
 class View(ttk.Frame):
     """Defines graphical user interface."""
@@ -14,7 +14,7 @@ class View(ttk.Frame):
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
         self.model = machine
-        self.controller = Controller(machine)
+        self.controller = Controller(self, machine)
         self.grid(sticky="NEWS")
         self.create_widgets()
         self.set_weight(self)
@@ -68,20 +68,27 @@ class View(ttk.Frame):
         self.rules.destroy()
         self.rules = self.new_widget(ttk.Frame, 2, 0)
         self.new_widget(ttk.Label, 0, 0, parent=self.rules, text='q \ a')
-        for i, q in enumerate(self.model.rules.keys()):
-            self.new_widget(ttk.Label, i + 1, 0, parent=self.rules, text=q)
 
-        for j, c in enumerate(self.model.alphabet[:-1]):  # XXX get_alphabet will remove LAMBDA?
+        for j, c in enumerate(self.model.alphabet):
             self.new_widget(ttk.Label, 0, j + 1, parent=self.rules, text=c)
         for i, s in enumerate(self.model.rules):
-            for j, c in enumerate(self.model.alphabet[:-1]):
-                self.new_widget(ttk.Label, i + 1, j + 1, parent=self.rules, text=self.model.rules[s][c])
+            self.new_widget(ttk.Label, i + 1, 0, parent=self.rules, text=s)
+            for j, c in enumerate(self.model.alphabet):
+                def to_reg(curr, prev, s=s, c=c):
+                    return self.controller.rule_check(s, c, curr, prev)
+                vc = self.register(to_reg)
+                self.new_widget(
+                    ttk.Entry, i + 1, j + 1, parent=self.rules,
+                    textvariable=self.controller.rules[s, c], validate='focusout',
+                    validatecommand=(vc, '%P', '%s')  # new val, stored val
+                )
         self.set_weight(self.rules)
 
 
 class Controller:
-    def __init__(self, machine: TuringMachine):
+    def __init__(self, view: View, machine: TuringMachine):
         self.model = machine
+        self.view = view
 
         self.alphabet = tk.StringVar()
         self.alphabet.set(self.model.alphabet[:-1])
@@ -94,10 +101,55 @@ class Controller:
         self.tacts = tk.StringVar()
         self.tacts.set(self.tacts_title + str(self.tacts_counter))
 
+        self.stashed = dict()
+        self.update_rules('')
+
+    def update_rules(self, remove):
+        """Add or remove entries for rules."""
+        def entry(s: str, c: str):
+            result = tk.StringVar()
+            result.set(self.model.rules.get(s, {}).get(c, '') or self.stashed.get((s, c), ''))
+            return result
+        self.rules = {
+            (s, c): entry(s, c)
+            for s in self.model.rules.keys()
+            for c in self.model.alphabet
+        }
+        for state, line in self.model.rules.items():
+            for c in remove:
+                self.stashed[state, c] = line.pop(c, '')
+
+    def rule_check(self, state: str, char: str, curr: str, prev: str):
+        """Check the rule entry to be correct triple."""
+        from re import split
+        result = split(r'[,\s]+', curr)
+        print('parsed', result)
+        if len(result) != 3:
+            print('wrong count')
+            return False
+        if result[0] not in self.model.alphabet:
+            print('not in alphabet')
+            return False
+        if result[1] not in 'nrlNRL':
+            print('not a move')
+            return False
+        if '!' != result[2] not in self.model.rules:
+            print('not a state')
+            return False
+        print('is stored', self.model.rules[state].get(char, 'nothing'))
+        print('at', state, char)
+        self.model.rules[state][char] = result
+        print('now stored', self.model.rules[state][char])
+        return True
+
     def alphabet_check(self, prev: str):
         """Check the alphabet entry to consist of unique symbols."""
         if len(set(self.alphabet.get())) == len(self.alphabet.get()):
-            # self.update_rules()
+            new_a = self.alphabet.get() + LAMBDA
+            old_a = self.model.alphabet
+            self.model.alphabet = new_a
+            self.update_rules([c for c in old_a if c not in new_a])
+            self.view.update_rules()
             return True
         self.alphabet.set(prev)
         return False

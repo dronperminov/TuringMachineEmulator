@@ -14,19 +14,15 @@ class TuringMachine:
     :param rules: maps state, character to [symbol, move, next state]
     :type rules: {str: {str: [str]}}
     """
-    def __init__(self, *, alphabet: str, rules: Dict[str, Dict[str, list]], tape: str = '', position: int = 0):
+    def __init__(self, *, alphabet: str, rules: Dict[str, Dict[str, list]], tape: str = '', position: int = 0, initial_state: str = 'q0'):
+        # TODO update docstring
         self.alphabet = alphabet + LAMBDA
         self.rules = rules
         self.tape = Tape(tape)
         self.position = position
 
-        assert len(rules) > 0
-        if 'q0' in rules:
-            self.state = 'q0'
-        else:
-            for k in rules:
-                self.state = k
-                break
+        assert len(rules) > 0 and initial_state in rules
+        self.state = initial_state
 
     def __print_line(self):
         """prints horisonatal line of the rules tabel"""
