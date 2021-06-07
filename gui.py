@@ -25,14 +25,19 @@ class View(ttk.Frame):
 
     @staticmethod
     def set_weight(widget):
-        """Make :param widget:'s grid stretchable."""
+        """Make widget's grid stretchable."""
         for column in range(widget.grid_size()[0]):
             widget.columnconfigure(column, weight=1)
         for row in range(widget.grid_size()[1]):
             widget.rowconfigure(row, weight=1)
 
-    def new_widget(self, cls, row, column, rowspan=1, colspan=1, parent=None, **kwargs):
-        """Create subwidget and place it in grid."""
+    def new_widget(self, cls, row: int, column: int, rowspan: int=1, colspan: int=1, parent=None, **kwargs):
+        """Create subwidget and place it in grid.
+
+        :param cls: a `tkinter` widget class to construct
+        :param parent: the parent widget
+        :param kwargs: arguments for constructor
+        """
         if parent is None:
             parent = self
         x = cls(parent, **kwargs)
@@ -129,7 +134,12 @@ class View(ttk.Frame):
         self.set_weight(self.rules)
 
 class Controller:
+    """Stores and manipulates control variables for view–model communication."""
     def __init__(self, view: View, machine: TuringMachine):
+        """
+        :param view: widgets to work with
+        :param machine: the model of Turing machine to work with
+        """
         self.model = machine
         self.view = view
 
@@ -152,6 +162,10 @@ class Controller:
         self.stashed = dict()
 
     def tape_check(self, i: int):
+        """Check change to the tape.
+
+        :param i: index of changed cell
+        """
         old = self.model.tape[self.tape_start + i]
         new = self.tape[i].get()
         if new == old:
@@ -167,7 +181,11 @@ class Controller:
         return True
 
     def update_rules(self, remove=''):
-        """Add or remove entries for rules."""
+        """Add or remove entries for rules.
+
+        :param remove: characters to remove from machine model as they are removed from the alphabet
+        :type remove: container of characters
+        """
 
         def new_var(s: str, c: str):
             result = tk.StringVar()
@@ -200,7 +218,10 @@ class Controller:
         self.update_rules()
 
     def state_check(self, s: str):
-        """Check state name to be unique."""
+        """Check state name to be unique.
+
+        :param s: the state that is renamed or '' in case of adding a new state
+        """
         old = s
         new = self.rules[s].get()
         if new == old:
@@ -215,7 +236,10 @@ class Controller:
         return True
 
     def rule_check(self, state: str, char: str):
-        """Check the rule entry to be correct triple."""
+        """Check the rule entry to be correct triple.
+
+        :param state: state
+        """
         from re import split
         result = split(r'[,\s]+', self.rules[state, char].get())
         if len(result) != 3 \
