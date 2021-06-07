@@ -13,8 +13,11 @@ class View(ttk.Frame):
         self.master.title('Turing Machine Emulator')
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
+        self.tape_size = 17
+
         self.model = machine
         self.controller = Controller(self, machine)
+
         self.grid(sticky="NEWS")
         self.create_widgets()
         self.set_weight(self)
@@ -38,7 +41,19 @@ class View(ttk.Frame):
     def create_widgets(self):
         """Create all the widgets."""
 
-        self.tape = self.new_widget(ttk.Label, 0, 0, textvariable=self.controller.tape)
+        self.tape_frame = self.new_widget(ttk.Frame, 0, 0)
+        self.tape = []
+        for i in range(self.tape_size):
+            def to_reg(i=i):
+                return self.controller.tape_check(i)
+            vc = self.register(to_reg)
+            a = self.new_widget(
+                ttk.Entry, 0, i, parent=self.tape_frame,
+                textvariable=self.controller.tape[i],
+                validate='focusout', validatecommand=vc
+            )
+            self.tape.append(a)
+        self.set_weight(self.tape_frame)
 
         machine_settings = self.new_widget(ttk.Frame, 1, 0)
 
@@ -113,8 +128,13 @@ class Controller:
         self.alphabet = tk.StringVar()
         self.alphabet.set(self.model.alphabet[:-1])
 
-        self.tape = tk.StringVar()
-        self.tape.set(self.model.get_tape_string())
+        self.radius = self.view.tape_size // 2
+        self.tape_start = self.model.position - self.radius
+
+        self.tape = {}
+        for i in range(self.view.tape_size):
+            self.tape[self.model.position + i] = tk.StringVar()
+            self.tape[self.model.position + i].set(self.model.tape[self.tape_start + i])
 
         self.tacts_counter = 0
         self.tacts_title = "Tacts: "
@@ -122,6 +142,21 @@ class Controller:
         self.tacts.set(self.tacts_title + str(self.tacts_counter))
 
         self.stashed = dict()
+
+    def tape_check(self, i: int):
+        old = self.model.tape[self.tape_start + i]
+        new = self.tape[i].get()
+        if new == old:
+            return False
+        if len(new) == 0:  # XXX keep this feature?
+            self.model.tape[self.tape_start + i] = LAMBDA
+            self.tape[i].set(LAMBDA)
+            return True
+        if len(new) != 1 or new not in self.model.alphabet:
+            self.tape[i].set(old)
+            return False
+        self.model.tape[self.tape_start + i] = new
+        return True
 
     def update_rules(self, remove=''):
         """Add or remove entries for rules."""
@@ -179,7 +214,9 @@ class Controller:
             or result[0] not in self.model.alphabet \
             or result[1] not in 'nrlNRL' \
             or '!' != result[2] not in self.model.rules:
-            self.rules[state, char].set(self.model.rules[state][char])
+            old = self.model.rules[state].get(char, '')
+            if old:
+                self.rules[state, char].set(old)
             return False
         self.model.rules[state][char] = result
         return True
@@ -201,20 +238,22 @@ class Controller:
     def step(self):
         """Advance the Turing machine one tact."""
         result = self.model.run(max_tacts=1)
-        if result['iterations'] == 0:
-            return  # the machine has stopped
-        self.tacts_counter += 1
-        self.tacts.set(self.tacts_title + str(self.tacts_counter))
-        self.tape.set(self.model.get_tape_string())
+        self.update_tape(result)
 
     def go(self):
         """Run the Turing machine till it stops or tacts limit exceeds."""
         result = self.model.run()
+        self.update_tape(result)
+
+    def update_tape(self, result):
+        """Update the tape."""
         if result['iterations'] == 0:
             return  # the machine has stopped
         self.tacts_counter += result['iterations']
         self.tacts.set(self.tacts_title + str(self.tacts_counter))
-        self.tape.set(self.model.get_tape_string())
+        self.tape_start = self.model.position - self.radius
+        for i, v in self.tape.items():
+            v.set(self.model.tape[self.tape_start + i])
 
 
 if (__name__ == "__main__"):
