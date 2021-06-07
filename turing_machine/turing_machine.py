@@ -9,13 +9,14 @@ class TuringMachine:
     """
     Turing machine class.
 
-    :param alphabet: the alphabet of this machine
-    :type alphabet: string of characters
+    :param string alphabet: the alphabet of this machine
     :param rules: maps state, character to [symbol, move, next state]
     :type rules: {str: {str: [str]}}
+    :param str tape: what is on the tape initially
+    :param int position: position of the machine's head on the tape (as every cell has integer index)
+    :param str initial_state: which state the machine starts from
     """
     def __init__(self, *, alphabet: str, rules: Dict[str, Dict[str, list]], tape: str = '', position: int = 0, initial_state: str = 'q0'):
-        # TODO update docstring
         self.alphabet = alphabet + LAMBDA
         self.rules = rules
         self.tape = Tape(tape)
@@ -97,11 +98,16 @@ class TuringMachine:
 
         :param mode: whether to include result of every step in return
         :returns: dictionary with fields:
-            * status: whether the machine stoped by itself (successfully) or because of tacts limit
-            * result: what is written on the tape as result
-            * iterations: how many tacts it run
-            * head_position: where the head is on the tape
-            * steps: list of intemideate information for every step, included only for "by step" mode
+
+            :status: whether the machine stoped by itself (successfully) or because of tacts limit
+
+            :result: what is written on the tape as result
+
+            :iterations: how many tacts it run
+
+            :head_position: where the head is on the tape
+
+            :steps: list of intemideate information for every step, included only for "by step" mode
         """
         tacts = 0
         steps = []

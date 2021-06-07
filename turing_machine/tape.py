@@ -5,7 +5,9 @@ from turing_machine.constants import LAMBDA
 class Tape:
     """Infinite tape of characters.
 
-    :param str: string written on the tape
+    Characters are indexed with integers (use tape[i] to access a character).
+
+    :param str: string written on the tape initially (starting from index 0)
     """
     def __init__(self, input: str = ''):
         self._chars = defaultdict(lambda: LAMBDA)
