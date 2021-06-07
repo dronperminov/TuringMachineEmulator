@@ -46,7 +46,7 @@ class View(ttk.Frame):
         self.alphabet = self.new_widget(
             ttk.Entry, 0, 0, parent=machine_settings,
             textvariable=self.controller.alphabet, validate='focusout',
-            validatecommand=(vc, '%s')  # code for 'value before change'
+            validatecommand=vc
         )
 
         self.tacts = self.new_widget(ttk.Label, 0, 1, parent=machine_settings, textvariable=self.controller.tacts)
@@ -72,16 +72,32 @@ class View(ttk.Frame):
         for j, c in enumerate(self.model.alphabet):
             self.new_widget(ttk.Label, 0, j + 1, parent=self.rules, text=c)
         for i, s in enumerate(self.model.rules):
-            self.new_widget(ttk.Label, i + 1, 0, parent=self.rules, text=s)
+            def to_reg(s=s):
+                return self.controller.state_check(s)
+            vc = self.register(to_reg)
+            self.new_widget(
+                ttk.Entry, i + 1, 0, parent=self.rules,
+                textvariable=self.controller.rules[s], validate='focusout',
+                validatecommand=vc
+            )
             for j, c in enumerate(self.model.alphabet):
-                def to_reg(curr, prev, s=s, c=c):
-                    return self.controller.rule_check(s, c, curr, prev)
+                def to_reg(s=s, c=c):
+                    return self.controller.rule_check(s, c)
                 vc = self.register(to_reg)
                 self.new_widget(
                     ttk.Entry, i + 1, j + 1, parent=self.rules,
                     textvariable=self.controller.rules[s, c], validate='focusout',
-                    validatecommand=(vc, '%P', '%s')  # new val, stored val
+                    validatecommand=vc
                 )
+        lll = len(self.model.rules)
+        def to_reg(s=''):
+            return self.controller.state_check(s)
+        vc = self.register(to_reg)
+        self.new_widget(
+            ttk.Entry, 1 + lll, 0, parent=self.rules,
+            textvariable=self.controller.rules[''], validate='focusout',
+            validatecommand=vc
+        )
         self.set_weight(self.rules)
 
 
@@ -106,52 +122,72 @@ class Controller:
 
     def update_rules(self, remove):
         """Add or remove entries for rules."""
-        def entry(s: str, c: str):
+
+        def new_var(s: str, c: str):
             result = tk.StringVar()
+            if c is None:
+                result.set(s)
+                return result
             result.set(self.model.rules.get(s, {}).get(c, '') or self.stashed.get((s, c), ''))
             return result
+
         self.rules = {
-            (s, c): entry(s, c)
+            (s, c): new_var(s, c)
             for s in self.model.rules.keys()
             for c in self.model.alphabet
         }
+        self.rules.update({
+            s: new_var(s, None)
+            for s in self.model.rules
+        })
+        self.rules[''] = tk.StringVar()  # for new state
+
         for state, line in self.model.rules.items():
             for c in remove:
                 self.stashed[state, c] = line.pop(c, '')
 
-    def rule_check(self, state: str, char: str, curr: str, prev: str):
-        """Check the rule entry to be correct triple."""
-        from re import split
-        result = split(r'[,\s]+', curr)
-        print('parsed', result)
-        if len(result) != 3:
-            print('wrong count')
+    def state_check(self, s: str):
+        """Check state name to be unique."""
+        old = s
+        new = self.rules[s].get()
+        if new == old:
             return False
-        if result[0] not in self.model.alphabet:
-            print('not in alphabet')
+        if new in self.model.rules:
+            self.rules[s].set(s)
             return False
-        if result[1] not in 'nrlNRL':
-            print('not a move')
-            return False
-        if '!' != result[2] not in self.model.rules:
-            print('not a state')
-            return False
-        print('is stored', self.model.rules[state].get(char, 'nothing'))
-        print('at', state, char)
-        self.model.rules[state][char] = result
-        print('now stored', self.model.rules[state][char])
+        assert(old == '' or old in self.model.rules)
+        line = self.model.rules.pop(old, dict())
+        self.model.rules[new] = line
+        self.update_rules([])
+        self.view.update_rules()
         return True
 
-    def alphabet_check(self, prev: str):
+    def rule_check(self, state: str, char: str):
+        """Check the rule entry to be correct triple."""
+        from re import split
+        result = split(r'[,\s]+', self.rules[state, char].get())
+        if len(result) != 3 \
+            or result[0] not in self.model.alphabet \
+            or result[1] not in 'nrlNRL' \
+            or '!' != result[2] not in self.model.rules:
+            self.rules[state, char].set(self.model.rules[state][char])
+            return False
+        self.model.rules[state][char] = result
+        return True
+
+    def alphabet_check(self):
         """Check the alphabet entry to consist of unique symbols."""
-        if len(set(self.alphabet.get())) == len(self.alphabet.get()):
-            new_a = self.alphabet.get() + LAMBDA
-            old_a = self.model.alphabet
-            self.model.alphabet = new_a
-            self.update_rules([c for c in old_a if c not in new_a])
+        old = self.model.alphabet
+        new = self.alphabet.get()
+        if old[:-1] == new:
+            return False
+        if len(set(new)) == len(new):
+            new += LAMBDA
+            self.model.alphabet = new
+            self.update_rules([c for c in old if c not in new])
             self.view.update_rules()
             return True
-        self.alphabet.set(prev)
+        self.alphabet.set(old[:-1])
         return False
 
     def step(self):
