@@ -6,13 +6,13 @@ from tkinter import ttk
 from tkinter import font
 from turing_machine.turing_machine import TuringMachine
 from turing_machine.constants import LAMBDA
-
+import gettext
 
 class View(ttk.Frame):
     """Defines graphical user interface."""
     def __init__(self, machine: TuringMachine):
         super().__init__(None)
-        self.master.title('Turing Machine Emulator')
+        self.master.title(_('Turing Machine Emulator'))
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(0, weight=1)
         self.tape_size = 17
@@ -94,7 +94,7 @@ class View(ttk.Frame):
         """Recreate the rules table."""
         self.rules.destroy()
         self.rules = self.__new_widget(ttk.Frame, 2, 0)
-        self.__new_widget(ttk.Label, 0, 0, colspan=2, parent=self.rules, text='q \\ a')
+        self.__new_widget(ttk.Label, 0, 0, colspan=2, parent=self.rules, text=_('States \\ Chars'))
 
         for j, c in enumerate(self.model.alphabet):
             self.__new_widget(ttk.Label, 0, j + 2, parent=self.rules, text=c)
@@ -161,7 +161,7 @@ class Controller:
             self.tape[self.model.position + i].set(self.model.tape[self.tape_start + i])
 
         self.tacts_counter = 0
-        self.tacts_title = "Tacts: "
+        self.tacts_title = _("Tacts: ")
         self.tacts = tk.StringVar()
         self.tacts.set(self.tacts_title + str(self.tacts_counter))
 
@@ -296,6 +296,8 @@ class Controller:
 
 
 if __name__ == "__main__":
+    gettext.install('turing_machine', localedir='.')
+
     config = {
         'alphabet': 'ab',
         'tape': 'aabaab',
