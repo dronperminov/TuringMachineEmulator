@@ -15,6 +15,15 @@ class Tape:
         self._left = 0
         self._right = len(input)
 
+    def filter(self, alphabet: str):
+        """Filter tape. Remove characters from the tape if they are not in the alphabet."""
+        indices_to_remove = [i for i, c in self._chars.items() if c not in alphabet]
+        for i in indices_to_remove:
+            self._chars.pop(i)
+
+        self._right = max(self._chars.keys()) + 1
+        self._left = min(self._chars.keys())
+
     def __getitem__(self, key):
         return self._chars[key]
 

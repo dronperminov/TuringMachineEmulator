@@ -76,8 +76,8 @@ class View(ttk.Frame):
         )
 
         self.tacts = self.__new_widget(ttk.Label, 0, 1, parent=machine_settings, textvariable=self.controller.tacts)
-        self.make_step = self.__new_widget(ttk.Button, 0, 3, parent=machine_settings, text='_step', command=self.controller._step)
-        self._go = self.__new_widget(ttk.Button, 0, 2, parent=machine_settings, text='_go', command=self.controller._go)
+        self.make_step = self.__new_widget(ttk.Button, 0, 3, parent=machine_settings, text='Step', command=self.controller._step)
+        self.go = self.__new_widget(ttk.Button, 0, 2, parent=machine_settings, text='Go', command=self.controller._go)
 
         self.__set_weight(machine_settings)
 
@@ -180,7 +180,7 @@ class Controller:
         self.model.tape[self.tape_start + i] = new
         return True
 
-    def __update_rules(self, remove=''):
+    def _update_rules(self, remove=''):
         """Add or remove entries for rules.
 
         :param remove: characters to remove from machine model as they are removed from the alphabet
@@ -262,7 +262,11 @@ class Controller:
         if len(set(new)) == len(new):
             new += LAMBDA
             self.model.alphabet = new
-            self.__update_rules([c for c in old if c not in new])
+            self.model.tape.filter(new);
+            self._update_rules([c for c in old if c not in new])
+            self.tape_start = self.model.position - self.radius
+            for i, v in self.tape.items():
+                v.set(self.model.tape[self.tape_start + i])
             return True
         self.alphabet.set(old[:-1])
         return False
