@@ -21,8 +21,6 @@ class TuringMachine:
         self.rules = rules
         self.tape = Tape(tape)
         self.position = position
-
-        assert len(rules) > 0 and initial_state in rules
         self.state = initial_state
 
     def __print_line(self):

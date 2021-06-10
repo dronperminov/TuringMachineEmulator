@@ -7,6 +7,7 @@ from tkinter import font
 from turing_machine.turing_machine import TuringMachine
 from turing_machine.constants import LAMBDA
 
+
 class View(ttk.Frame):
     """Defines graphical user interface."""
     def __init__(self, machine: TuringMachine):
@@ -31,7 +32,7 @@ class View(ttk.Frame):
         for row in range(widget.grid_size()[1]):
             widget.rowconfigure(row, weight=1)
 
-    def __new_widget(self, cls, row: int, column: int, rowspan: int=1, colspan: int=1, parent=None, **kwargs):
+    def __new_widget(self, cls, row: int, column: int, rowspan: int = 1, colspan: int = 1, parent=None, **kwargs):
         """Create subwidget and place it in grid.
 
         :param cls: a `tkinter` widget class to construct
@@ -93,7 +94,7 @@ class View(ttk.Frame):
         """Recreate the rules table."""
         self.rules.destroy()
         self.rules = self.__new_widget(ttk.Frame, 2, 0)
-        self.__new_widget(ttk.Label, 0, 0, colspan=2, parent=self.rules, text='q \ a')
+        self.__new_widget(ttk.Label, 0, 0, colspan=2, parent=self.rules, text='q \\ a')
 
         for j, c in enumerate(self.model.alphabet):
             self.__new_widget(ttk.Label, 0, j + 2, parent=self.rules, text=c)
@@ -102,8 +103,10 @@ class View(ttk.Frame):
                 return self.controller._delete_state(s)
             vc = self.register(to_reg1)
             self.__new_widget(ttk.Button, i + 1, 0, parent=self.rules, text='x', command=vc)
+
             def to_reg(s=s):
                 return self.controller._state_check(s)
+
             vc = self.register(to_reg)
             self.__new_widget(
                 ttk.Entry, i + 1, 1, parent=self.rules,
@@ -123,8 +126,10 @@ class View(ttk.Frame):
                 )
 
         lll = len(self.model.rules)
+
         def to_reg(s=''):
             return self.controller._state_check(s)
+
         vc = self.register(to_reg)
         self.__new_widget(
             ttk.Entry, 1 + lll, 1, parent=self.rules,
@@ -132,6 +137,7 @@ class View(ttk.Frame):
             validatecommand=vc
         )
         self.__set_weight(self.rules)
+
 
 class Controller:
     """Stores and manipulates control variables for view–model communication."""
@@ -242,10 +248,7 @@ class Controller:
         """
         from re import split
         result = split(r'[,\s]+', self.rules[state, char].get())
-        if len(result) != 3 \
-            or result[0] not in self.model.alphabet \
-            or result[1] not in 'nrlNRL' \
-            or '!' != result[2] not in self.model.rules:
+        if len(result) != 3 or result[0] not in self.model.alphabet or result[1] not in 'nrlNRL' or '!' != result[2] not in self.model.rules:
             old = self.model.rules[state].get(char, '')
             if old:
                 self.rules[state, char].set(old)
@@ -262,7 +265,7 @@ class Controller:
         if len(set(new)) == len(new):
             new += LAMBDA
             self.model.alphabet = new
-            self.model.tape.filter(new);
+            self.model.tape.filter(new)
             self._update_rules([c for c in old if c not in new])
             self.tape_start = self.model.position - self.radius
             for i, v in self.tape.items():
