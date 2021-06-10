@@ -12,8 +12,8 @@ class TestTape(unittest.TestCase):
             "rules": {}
         }
 
-        machine = TuringMachine(**config)
-        result = machine.run(NORMAL_MODE, initial_state=STOP_STATE)
+        machine = TuringMachine(**config, initial_state=STOP_STATE)
+        result = machine.run(NORMAL_MODE)
 
         self.assertEqual(result["status"], SUCCESSFUL_STATUS)
         self.assertEqual(result["iterations"], 0)
@@ -60,6 +60,7 @@ class TestTape(unittest.TestCase):
             'alphabet': 'ab',
             'tape': 'aabaab',
             'position': 1,
+            'initial_state': "q1",
             'rules': {
                 "q0": {
                     "a": ["a", "R", "q1"],
@@ -75,7 +76,7 @@ class TestTape(unittest.TestCase):
         }
 
         machine = TuringMachine(**config)
-        result = machine.run(initial_state="q1")
+        result = machine.run()
 
         self.assertEqual(result["status"], SUCCESSFUL_STATUS)
         self.assertEqual(result["iterations"], 6)

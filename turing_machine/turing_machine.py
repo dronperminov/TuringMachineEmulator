@@ -9,16 +9,19 @@ class TuringMachine:
     """
     Turing machine class.
 
-    :param alphabet: the alphabet of this machine
-    :type alphabet: string of characters
+    :param string alphabet: the alphabet of this machine
     :param rules: maps state, character to [symbol, move, next state]
     :type rules: {str: {str: [str]}}
+    :param str tape: what is on the tape initially
+    :param int position: position of the machine's head on the tape (as every cell has integer index)
+    :param str initial_state: which state the machine starts from
     """
-    def __init__(self, *, alphabet: str, rules: Dict[str, Dict[str, list]], tape: str = '', position: int = 0):
+    def __init__(self, *, alphabet: str, rules: Dict[str, Dict[str, list]], tape: str = '', position: int = 0, initial_state: str = 'q0'):
         self.alphabet = alphabet + LAMBDA
         self.rules = rules
         self.tape = Tape(tape)
         self.position = position
+        self.state = initial_state
 
     def __print_line(self):
         """prints horisonatal line of the rules tabel"""
@@ -88,29 +91,33 @@ class TuringMachine:
         """Returns the current state of the tape as a string"""
         return str(self.tape)
 
-    def run(self, mode: str = NORMAL_MODE, max_tacts: int = MAX_ITERATIONS, initial_state: str = "q0") -> dict:
+    def run(self, mode: str = NORMAL_MODE, max_tacts: int = MAX_ITERATIONS) -> dict:
         """Emulate the Turing machine.
 
         :param mode: whether to include result of every step in return
         :returns: dictionary with fields:
-            * status: whether the machine stoped by itself (successfully) or because of tacts limit
-            * result: what is written on the tape as result
-            * iterations: how many tacts it run
-            * head_position: where the head is on the tape
-            * steps: list of intemideate information for every step, included only for "by step" mode
+
+            :status: whether the machine stoped by itself (successfully) or because of tacts limit
+
+            :result: what is written on the tape as result
+
+            :iterations: how many tacts it run
+
+            :head_position: where the head is on the tape
+
+            :steps: list of intemideate information for every step, included only for "by step" mode
         """
-        q = initial_state
         tacts = 0
         steps = []
 
-        while q != STOP_STATE and tacts < max_tacts:
+        while self.state != STOP_STATE and tacts < max_tacts:
             c = self.tape[self.position]
-            c_next, move, q_next = self.rules[q][c]
+            c_next, move, q_next = self.rules[self.state][c]
             self.tape[self.position] = c_next
 
             if mode == BY_STEP_MODE:
                 steps.append({
-                    "curr_state": q,
+                    "curr_state": self.state,
                     "next_state": q_next,
                     "curr_character": c,
                     "next_character": c_next,
@@ -124,7 +131,7 @@ class TuringMachine:
                 self.position -= 1
 
             tacts += 1
-            q = q_next
+            self.state = q_next
 
         result = {
             "status": SUCCESSFUL_STATUS if tacts < max_tacts else MAX_ITERATIONS_REACHED_STATUS,
