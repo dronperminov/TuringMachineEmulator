@@ -14,7 +14,14 @@ help:
 	@echo "ru          to make messages translation for russian language"
 # $(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile html ru
+.PHONY: help Makefile html ru clean
+
+clean:
+	rm build -rf
+	rm */__pycache__ -rf
+	rm __pycache__ -rf
+	rm turing_machine.egg-info -rf
+	rm dist -rf
 
 DOMAIN=turing_machine
 TRANSLATIONS_DIR=.
