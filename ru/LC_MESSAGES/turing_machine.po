@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-06-10 18:36+0300\n"
+"POT-Creation-Date: 2021-06-11 13:40+0300\n"
 "PO-Revision-Date: 2021-06-10 18:29+0300\n"
 "Last-Translator: OLEG PETROV\n"
 "Language: ru\n"
@@ -19,30 +19,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.0\n"
 
-#: gui.py:15
+#: turing_machine/gui.py:17
 msgid "Turing Machine Emulator"
 msgstr "Эмулятор машины Тьюринга"
 
-#: gui.py:80
+#: turing_machine/gui.py:82
 msgid "Step"
 msgstr "Сделать шаг"
 
-#: gui.py:81
+#: turing_machine/gui.py:83
 msgid "Go"
 msgstr "Запустить"
 
-#: gui.py:89
+#: turing_machine/gui.py:91
 msgid "Load"
 msgstr "Загрузить"
 
-#: gui.py:90
+#: turing_machine/gui.py:92
 msgid "Save"
 msgstr "Сохранить"
 
-#: gui.py:97
+#: turing_machine/gui.py:99
 msgid "States \\ Chars"
 msgstr "Состояния \\ Символы"
 
-#: gui.py:164
+#: turing_machine/gui.py:166
 msgid "Tacts: "
 msgstr "Такты: "
+

@@ -1,0 +1,8 @@
+[build-system]
+requires = [
+    "build", "setuptools", "wheel",
+    "flake8", "pycodestyle",
+    "babel", "Sphinx",
+    "flask", "werkzeug"
+]
+build-backend = "setuptools.build_meta"

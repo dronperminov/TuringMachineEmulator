@@ -14,14 +14,21 @@ help:
 	@echo "ru          to make messages translation for russian language"
 # $(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile html ru
+.PHONY: help Makefile html ru clean
+
+clean:
+	rm build -rf
+	rm */__pycache__ -rf
+	rm __pycache__ -rf
+	rm turing_machine.egg-info -rf
+	rm dist -rf
 
 DOMAIN=turing_machine
 TRANSLATIONS_DIR=.
 
-ru: $(TRANSLATIONS_DIR)/ru/LC_MESSAGES/$(DOMAIN).mo
+ru: $(DOMAIN)/ru/LC_MESSAGES/$(DOMAIN).mo
 
-$(DOMAIN).pot: gui.py
+$(DOMAIN).pot: turing_machine/gui.py
 	pybabel extract -o $@ $^
 
 # TODO init if no dir
@@ -29,7 +36,7 @@ $(DOMAIN).pot: gui.py
 $(TRANSLATIONS_DIR)/ru/LC_MESSAGES/$(DOMAIN).po: $(DOMAIN).pot
 	pybabel update -D $(DOMAIN) -i $^ -d $(TRANSLATIONS_DIR) -l ru
 
-$(TRANSLATIONS_DIR)/ru/LC_MESSAGES/$(DOMAIN).mo: ru/LC_MESSAGES/$(DOMAIN).po
+$(DOMAIN)/ru/LC_MESSAGES/$(DOMAIN).mo: $(TRANSLATIONS_DIR)/ru/LC_MESSAGES/$(DOMAIN).po
 	pybabel compile -D $(DOMAIN) -i $^ -o $@
 
 # Catch-all target: route all unknown targets to Sphinx using the new

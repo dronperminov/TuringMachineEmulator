@@ -10,7 +10,6 @@ Welcome to Turing Machine Emulator's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   gui
    main
    modules
 

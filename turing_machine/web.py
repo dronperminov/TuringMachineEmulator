@@ -1,5 +1,4 @@
 import os
-import os.path
 import json
 import hashlib
 import gettext
@@ -10,6 +9,7 @@ from werkzeug.utils import secure_filename
 
 from turing_machine.constants import BY_STEP_MODE
 from turing_machine.turing_machine import TuringMachine
+
 
 app = Flask(__name__)
 
@@ -110,15 +110,20 @@ def view_machine(filename):
     )
 
 
-if __name__ == '__main__':
-    gettext.install('turing_machine', localedir='.')
+def main():
+    path = os.path.dirname(__file__)
+    gettext.install('turing_machine', localedir=path)
 
     host = "0.0.0.0"
     port = 5000
     debug = True
 
-    app.config['JS_FOLDER'] = 'web/js'  # папка с js кодом
-    app.config['CSS_FOLDER'] = 'web/css'  # папка со стилями
-    app.config['UPLOAD_FOLDER'] = 'web/upload'  # папка с загрузками
+    app.config['JS_FOLDER'] = path + '/web/js'  # папка с js кодом
+    app.config['CSS_FOLDER'] = path + '/web/css'  # папка со стилями
+    app.config['UPLOAD_FOLDER'] = path + '/web/upload'  # папка с загрузками
 
     app.run(debug=debug, host=host, port=port)
+
+
+if __name__ == '__main__':
+    main()

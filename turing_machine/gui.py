@@ -4,8 +4,9 @@ Graphical user interface for Turing machine, using Tkinter.
 import tkinter as tk
 from tkinter import ttk
 from tkinter import font
-from turing_machine.turing_machine import TuringMachine
-from turing_machine.constants import LAMBDA
+from .turing_machine import TuringMachine
+from .constants import LAMBDA
+import os
 import gettext
 
 
@@ -296,8 +297,8 @@ class Controller:
             v.set(self.model.tape[self.tape_start + i])
 
 
-if __name__ == "__main__":
-    gettext.install('turing_machine', localedir='.')
+def main():
+    gettext.install('turing_machine', localedir=os.path.dirname(__file__))
 
     config = {
         'alphabet': 'ab',
@@ -318,3 +319,7 @@ if __name__ == "__main__":
 
     turing_machine = TuringMachine(**config)
     View(turing_machine).mainloop()
+
+
+if __name__ == "__main__":
+    main()
