@@ -1,3 +1,4 @@
 recursive-include . *.po
-recursive-include tests *
+include tests *.py
 recursive-include docs *
+recursive-include turing_machine/web *
