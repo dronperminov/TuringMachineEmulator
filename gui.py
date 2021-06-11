@@ -8,6 +8,7 @@ from turing_machine.turing_machine import TuringMachine
 from turing_machine.constants import LAMBDA
 import gettext
 
+
 class View(ttk.Frame):
     """Defines graphical user interface."""
     def __init__(self, machine: TuringMachine):
