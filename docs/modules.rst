@@ -9,3 +9,4 @@ Implements Turing machine logic.
    constants
    tape
    turing_machine
+   gui
